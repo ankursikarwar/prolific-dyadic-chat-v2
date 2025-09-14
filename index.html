@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prolific Dyadic Chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- jsPsych core -->
+    <script src="https://unpkg.com/jspsych@7.3.3/dist/index.browser.js?v=core_v7"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.3/dist/style.css?v=core_v7">
+
+    <!-- Local plugins (class-style for v7) -->
+    <script src="/plugins/jspsych-survey-html-form-lite.js?v=v7class"></script>
+    <script src="/plugins/jspsych-instructions-lite.js?v=v7class"></script>
+    <script src="/plugins/jspsych-dyadic-chat.js?v=vG6h-pidblock"></script>
+
+    <style>
+      body { margin:0; background:#000; color:#fff; font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+      .jspsych-content { color:#fff; }
+      .jspsych-btn { background:#1f1f22; color:#fff; border:1px solid #555; border-radius:10px; padding:10px 14px; }
+      a, p, li, h1, h2, h3 { color:#fff; }
+      .consent-box { max-height:55vh; overflow:auto; padding:12px; border:1px solid #444; border-radius:10px; background:#0b0b0b; text-align:left; }
+      .consent-actions { margin-top:12px; }
+      .consent-actions label { display:flex; align-items:center; gap:8px; }
+      .instr { text-align:left; max-width:900px; margin:0 auto; }
+      .instr ul { line-height:1.5; }
+      .instr h2 { margin-top:0; }
+    </style>
+  </head>
+  <body>
+    <script>
+      const jsPsych = initJsPsych();
+      const CONSENT_HTML = `
+        <div class="consent-box">
+          <h2>Consent</h2>
+          <p>Please read the study information below. By checking the box, you confirm that you are 18+, understand the task, and consent to participate.</p>
+          <ul>
+            <li>Your chat and answers will be recorded for research.</li>
+            <li>Do not share any personal or identifying information.</li>
+            <li>You may withdraw at any time by closing the window.</li>
+          </ul>
+          <div class="consent-actions">
+            <label><input type="checkbox" name="consent" required> I have read the information and I consent to participate.</label>
+          </div>
+        </div>`;
+
+      const INSTRUCTIONS_HTML = `
+        <div class="instr">
+          <h2>Instructions</h2>
+          <ul>
+            <li>Discuss with your partner to answer the goal question below the image.</li>
+            <li>Strict turn-taking: you can only send a message after your partner replies.</li>
+            <li>The chat will close after the maximum number of turns. Then, select your answer.</li>
+            <li>Do not share personal information.</li>
+          </ul>
+          <p>Click "Start chat" when you are ready.</p>
+        </div>`;
+
+      const consentTrial = { type: jsPsychSurveyHtmlForm, html: CONSENT_HTML, button_label: "Continue" };
+      const instructionsTrial = { type: jsPsychInstructions, pages: [INSTRUCTIONS_HTML], show_clickable_nav: true, button_label_next: "Start chat", button_label_previous: "Back" };
+      const chatTrial = {
+        type: jsPsychDyadicChat,
+        socketUrl: window.location.origin,
+        prolific: { PID: 'DEBUG_LOCAL' },
+        min_turns: 10,
+        goal_question: '',
+        answer_options: ['A','B','C','D'],
+        wait_timeout_sec: 120,
+        instructions_html: INSTRUCTIONS_HTML,
+        image_url: ''
+      };
+
+      jsPsych.run([consentTrial, instructionsTrial, chatTrial]);
+    </script>
+  </body>
+</html>
